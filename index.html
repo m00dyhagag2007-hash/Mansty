@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>منصة المهندس الزراعي | AGRI PRO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* تسريع الأداء - استخدام will-change و transform */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            /* الوضع الليلي - نيون أزرق عالمي */
+            --neon-blue: #00ccff;
+            --neon-blue-light: #4da6ff;
+            --neon-blue-dark: #0066cc;
+            --neon-blue-deep: #003399;
+            --neon-cyan: #00ffff;
+            --neon-purple: #aa80ff;
+            --neon-pink: #ff80bf;
+            --neon-green: #80ffaa;
+            --dark-bg: linear-gradient(135deg, #000428, #004e92, #000428);
+            --card-bg: rgba(0, 30, 60, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #e6f0ff;
+            --shadow-color: rgba(0, 204, 255, 0.6);
+        }
+
+        /* الوضع النهاري */
+        body.light-mode {
+            --neon-blue: #0066cc;
+            --neon-blue-light: #3385ff;
+            --neon-blue-dark: #004d99;
+            --neon-blue-deep: #003366;
+            --neon-cyan: #0099cc;
+            --neon-purple: #663399;
+            --neon-pink: #cc6699;
+            --neon-green: #00cc66;
+            --dark-bg: linear-gradient(135deg, #e6f2ff, #cce6ff, #b3d9ff);
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --text-primary: #003366;
+            --text-secondary: #1a4d80;
+            --shadow-color: rgba(0, 102, 204, 0.4);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.2s ease;
+            will-change: background;
+        }
+
+        /* خلفية خفيفة وسريعة */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .ocean-wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 204, 255, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(77, 166, 255, 0.15) 0%, transparent 50%);
+            animation: oceanMove 40s linear infinite;
+            will-change: transform;
+        }
+
+        @keyframes oceanMove {
+            0% { transform: translate(-10%, -10%) rotate(0deg); }
+            100% { transform: translate(10%, 10%) rotate(2deg); }
+        }
+
+        /* عناصر زراعية ثابتة (بدون حركة للسرعة) */
+        .agri-element {
+            position: absolute;
+            opacity: 0.1;
+            color: var(--neon-blue);
+            font-size: 4rem;
+            pointer-events: none;
+        }
+
+        .agri-element:nth-child(1) { top: 5%; left: 5%; }
+        .agri-element:nth-child(2) { top: 15%; right: 8%; }
+        .agri-element:nth-child(3) { bottom: 10%; left: 10%; }
+        .agri-element:nth-child(4) { top: 40%; right: 15%; }
+        .agri-element:nth-child(5) { bottom: 20%; left: 20%; }
+        .agri-element:nth-child(6) { top: 70%; right: 5%; }
+        .agri-element:nth-child(7) { bottom: 30%; right: 25%; }
+
+        /* أنيميشنات سريعة (خفيفة على المعالج) */
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--neon-blue)); }
+            50% { filter: drop-shadow(0 0 25px var(--neon-blue-light)); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* الشاشات */
+        .screen {
+            min-height: 100vh;
+            display: none;
+            padding: 15px;
+            animation: fadeInUp 0.4s ease;
+            will-change: opacity, transform;
+        }
+
+        .screen.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* بطاقة رئيسية - خفيفة وسريعة */
+        .boss-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 60px;
+            padding: 30px 25px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        /* عنوان المنصة */
+        .platform-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #fff, var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        /* عنوان تسجيل الدخول - سطرين */
+        .welcome-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .welcome-line {
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px var(--neon-blue);
+            line-height: 1.4;
+        }
+
+        .welcome-line:first-child {
+            font-size: 2rem;
+        }
+
+        .welcome-line:last-child {
+            font-size: 1.6rem;
+        }
+
+        /* حقول الإدخال */
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-blue);
+            font-size: 1.1rem;
+            text-shadow: 0 0 15px var(--neon-blue);
+            z-index: 1;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px 45px 15px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Cairo', sans-serif;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+            will-change: border, box-shadow;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 25px var(--neon-blue);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* الأزرار - سريعة الاستجابة */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 15px;
+            font-family: 'Cairo', sans-serif;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-dark));
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0);
+            will-change: transform, box-shadow;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px var(--neon-blue), 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* القائمة الجانبية - سريعة */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: rgba(0, 20, 40, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 2000;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 25px 20px;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+            will-change: right;
+        }
+
+        body.light-mode .side-menu {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .side-menu.open {
+            right: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--neon-blue);
+        }
+
+        .menu-header h3 {
+            color: var(--neon-blue);
+            font-size: 1.8rem;
+        }
+
+        .close-menu {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .close-menu:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid transparent;
+            will-change: transform, background;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 204, 255, 0.1);
+            border-color: var(--neon-blue);
+            transform: translateX(-5px);
+        }
+
+        .menu-item i {
+            font-size: 1.5rem;
+        }
+
+        /* التاسك بار - خفيف */
+        .taskbar {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 60px;
+            padding: 10px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0);
+        }
+
+        .theme-toggle, .menu-trigger {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--neon-blue);
+            background: rgba(0, 204, 255, 0.1);
+            color: var(--neon-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.2s ease;
+        }
+
+        .theme-toggle:hover, .menu-trigger:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        /* جروب الملخصات */
+        .group-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 204, 255, 0.1);
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 0.9rem;
+            transition: background 0.2s ease;
+        }
+
+        .group-badge:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        /* ترحيب المستخدم */
+        .user-greeting {
+            position: fixed;
+            top: 85px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 999;
+            font-size: 1.1rem;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(0, 204, 255, 0.15), rgba(0, 102, 204, 0.15));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--neon-blue);
+            color: var(--text-primary);
+            font-weight: 900;
+        }
+
+        /* بطاقات المواد - سريعة وجميلة */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 130px;
+            padding: 20px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0);
+            will-change: transform, box-shadow;
+        }
+
+        /* تدرجات سريعة */
+        .subject-card:nth-child(1) { background: linear-gradient(145deg, rgba(0, 204, 255, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(2) { background: linear-gradient(145deg, rgba(77, 166, 255, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(3) { background: linear-gradient(145deg, rgba(128, 128, 255, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(4) { background: linear-gradient(145deg, rgba(0, 153, 204, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(5) { background: linear-gradient(145deg, rgba(102, 178, 255, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(6) { background: linear-gradient(145deg, rgba(51, 153, 255, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(7) { background: linear-gradient(145deg, rgba(0, 128, 255, 0.2), var(--card-bg)); }
+        .subject-card:nth-child(8) { background: linear-gradient(145deg, rgba(25, 118, 210, 0.2), var(--card-bg)); }
+
+        .subject-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 0 40px var(--neon-blue);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 150px;
+            border-radius: 40px;
+            object-fit: cover;
+            border: 2px solid var(--neon-blue);
+            margin-bottom: 15px;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .card-title {
+            font-size: 1.7rem;
+            font-weight: 900;
+            text-align: center;
+            margin: 12px 0;
+            color: var(--text-primary);
+            text-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* شريط التقدم */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-light));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        /* أزرار البطاقات */
+        .card-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .card-btn {
+            padding: 10px 5px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 0.85rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--neon-blue);
+            color: var(--text-primary);
+            transition: background 0.15s ease, transform 0.15s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            will-change: transform, background;
+        }
+
+        .card-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        .card-btn i {
+            font-size: 0.9rem;
+            color: var(--neon-blue);
+        }
+
+        .card-btn:hover i {
+            color: #000;
+        }
+
+        /* شاشة اسألني الطالب */
+        .ask-container {
+            margin-top: 15px;
+        }
+
+        .image-upload {
+            border: 1px dashed var(--neon-blue);
+            border-radius: 50px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .image-upload:hover {
+            background: rgba(0, 204, 255, 0.1);
+        }
+
+        .image-upload i {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 8px;
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 40px;
+            margin-top: 15px;
+            border: 2px solid var(--neon-blue);
+            display: none;
+        }
+
+        /* رسائل سريعة */
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 900;
+            margin: 15px 0;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-dark));
+            color: #000;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ff3366, #cc0066);
+            color: #fff;
+        }
+
+        /* الأزرار الثلاثة */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 110px;
+            padding: 12px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 0.95rem;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid;
+            transition: background 0.2s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            will-change: transform, background;
+        }
+
+        .group-btn {
+            background: rgba(0, 204, 255, 0.1);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .group-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        .ask-btn {
+            background: rgba(77, 166, 255, 0.1);
+            border-color: var(--neon-blue-light);
+            color: var(--neon-blue-light);
+        }
+
+        .ask-btn:hover {
+            background: var(--neon-blue-light);
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        .back-btn {
+            background: rgba(255, 51, 102, 0.1);
+            border-color: #ff3366;
+            color: #ff3366;
+        }
+
+        .back-btn:hover {
+            background: #ff3366;
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        /* Toast سريع */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-dark));
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 60px;
+            font-weight: 900;
+            z-index: 9999;
+            display: none;
+            text-align: center;
+            font-size: 1rem;
+            border: 2px solid white;
+            box-shadow: 0 0 40px var(--neon-blue);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #000;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Skeleton loading سريع */
+        .skeleton-card {
+            background: linear-gradient(90deg, 
+                rgba(0, 204, 255, 0.1) 25%, 
+                rgba(77, 166, 255, 0.15) 50%, 
+                rgba(0, 204, 255, 0.1) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+            border-radius: 50px;
+            height: 380px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* تحسينات الجوال */
+        @media (max-width: 480px) {
+            .platform-title { font-size: 1.8rem; }
+            .welcome-line:first-child { font-size: 1.6rem; }
+            .welcome-line:last-child { font-size: 1.3rem; }
+            .subjects-grid { grid-template-columns: 1fr; }
+            .card-buttons { gap: 8px; }
+            .card-btn { font-size: 0.8rem; padding: 8px 3px; }
+            .action-buttons { flex-direction: column; }
+            .group-badge span { display: none; }
+            .group-badge { padding: 8px 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- خلفية خفيفة -->
+    <div class="bg-animation" id="bgAnimation">
+        <div class="ocean-wave"></div>
+        <div class="agri-element"><i class="fa-solid fa-leaf"></i></div>
+        <div class="agri-element"><i class="fa-solid fa-seedling"></i></div>
+        <div class="agri-element"><i class="fa-solid fa-tree"></i></div>
+        <div class="agri-element"><i class="fa-solid fa-wheat-awn"></i></div>
+        <div class="agri-element"><i class="fa-solid fa-apple-whole"></i></div>
+        <div class="agri-element"><i class="fa-solid fa-cow"></i></div>
+        <div class="agri-element"><i class="fa-solid fa-fish"></i></div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- القائمة الجانبية -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h3>القائمة</h3>
+            <div class="close-menu" onclick="toggleMenu()">
+                <i class="fa-solid fa-times"></i>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="openProfileEdit()">
+            <i class="fa-solid fa-user" style="color: var(--neon-blue);"></i>
+            <div>
+                <h4 style="color: var(--neon-blue);">الملف الشخصي</h4>
+                <p style="font-size: 0.9rem; opacity: 0.8;">تعديل الاسم</p>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="openPrayerMessage()">
+            <i class="fa-solid fa-heart" style="color: var(--neon-pink);"></i>
+            <div>
+                <h4 style="color: var(--neon-pink);">رسالة منا ❤️</h4>
+                <p style="font-size: 0.9rem; opacity: 0.8;">دعواتنا لكم</p>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="openSupport()">
+            <i class="fa-solid fa-headset" style="color: var(--neon-purple);"></i>
+            <div>
+                <h4 style="color: var(--neon-purple);">الدعم الفني</h4>
+                <p style="font-size: 0.9rem; opacity: 0.8;">التواصل مع المطورين</p>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="openAskScreen()">
+            <i class="fa-solid fa-circle-question" style="color: var(--neon-green);"></i>
+            <div>
+                <h4 style="color: var(--neon-green);">اسألني الطالب</h4>
+                <p style="font-size: 0.9rem; opacity: 0.8;">اسأل واحنا نجاوبك</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة رسالة منا -->
+    <div class="screen" id="prayer-screen">
+        <div class="boss-card">
+            <div style="text-align: center;">
+                <i class="fa-solid fa-heart" style="font-size: 4.5rem; color: var(--neon-pink); text-shadow: 0 0 40px var(--neon-pink); margin-bottom: 15px;"></i>
+                <h1 class="platform-title">رسالة منا ❤️</h1>
+            </div>
+            
+            <div style="text-align: center; padding: 25px; background: rgba(255, 255, 255, 0.03); border-radius: 50px; margin: 20px 0;">
+                <i class="fa-solid fa-hands-praying" style="font-size: 3.5rem; color: var(--neon-blue); margin-bottom: 15px; text-shadow: 0 0 30px var(--neon-blue);"></i>
+                <p style="font-size: 1.2rem; line-height: 1.7; margin-bottom: 20px; font-weight: 700;">
+                    برجاء الدعاء للقائمين علي هذا العمل اجمعين<br>
+                    من قام بإنشاء المنصه ووضع الاسئله والاختبارات والملخصات
+                </p>
+                <div style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, var(--neon-green), var(--neon-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    بالتوفيق والنجاح الدائم ❤️💙
+                </div>
+            </div>
+
+            <button class="btn" onclick="closePrayerMessage()">رجوع</button>
+        </div>
+    </div>
+
+    <!-- شاشة اسألني الطالب -->
+    <div class="screen" id="ask-screen">
+        <div class="boss-card">
+            <div style="text-align: center;">
+                <i class="fa-solid fa-circle-question" style="font-size: 4.5rem; color: var(--neon-blue); text-shadow: 0 0 40px var(--neon-blue); margin-bottom: 10px;"></i>
+                <h1 class="platform-title">اسألني الطالب</h1>
+            </div>
+            
+            <div class="ask-container">
+                <textarea class="input-field" id="question-text" rows="3" placeholder="اكتب سؤالك هنا..." style="height: 100px; padding: 15px;"></textarea>
+                
+                <div id="bad-word-error" class="error-message" style="display: none;">
+                    <i class="fa-solid fa-ban"></i> لا يمكن استخدام كلمات غير لائقة
+                </div>
+                
+                <div class="image-upload" onclick="document.getElementById('image-input').click()">
+                    <i class="fa-solid fa-camera"></i>
+                    <p>اضغط لرفع صورة (اختياري)</p>
+                    <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                </div>
+                <img id="image-preview" src="#">
+
+                <div id="success-message" class="success-message" style="display: none;">
+                    <i class="fa-regular fa-circle-check"></i> سيتم الرد علي سؤالك في الجروب يهندسة ❤️
+                </div>
+
+                <div class="action-buttons">
+                    <a href="https://t.me/MRXForAnynomes" target="_blank" class="action-btn group-btn">
+                        <i class="fa-brands fa-telegram"></i> جروب الملخصات
+                    </a>
+                    <button class="action-btn ask-btn" onclick="sendQuestion()" id="send-btn">
+                        <i class="fa-regular fa-paper-plane"></i> إرسال
+                    </button>
+                    <button class="action-btn back-btn" onclick="closeAskScreen()">
+                        <i class="fa-solid fa-arrow-right"></i> رجوع
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة الدعم الفني - روابط داخل الايقونات -->
+    <div class="screen" id="support-screen">
+        <div class="boss-card">
+            <h1 class="platform-title">الدعم الفني</h1>
+            
+            <!-- المطور الأول - Mohammed Hagag -->
+            <div style="text-align: center; margin: 20px 0 15px;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; box-shadow: 0 0 50px var(--neon-blue);">
+                    <i class="fa-solid fa-crown" style="font-size: 3.5rem; color: #000;"></i>
+                </div>
+                <h2 style="background: linear-gradient(135deg, var(--neon-blue), var(--neon-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.8rem;">Mohammed Hagag</h2>
+                <p style="color: var(--neon-green); font-size: 1.1rem; margin-bottom: 8px;">مطور المنصة</p>
+                
+                <div style="display: flex; gap: 20px; justify-content: center; margin: 10px 0;">
+                    <a href="https://wa.me/201029812013" target="_blank" style="font-size: 2.5rem; color: #25D366; text-shadow: 0 0 20px #25D366;"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://t.me/M_Rr_X_1" target="_blank" style="font-size: 2.5rem; color: #0088cc; text-shadow: 0 0 20px #0088cc;"><i class="fa-brands fa-telegram"></i></a>
+                </div>
+            </div>
+
+            <div style="height: 1px; background: linear-gradient(90deg, transparent, var(--neon-blue), transparent); margin: 15px 0;"></div>
+
+            <!-- المطور الثاني - Fat7y Mahmoud مع روابط داخل الايقونات -->
+            <div style="text-align: center; margin: 15px 0 20px;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; box-shadow: 0 0 50px var(--neon-purple);">
+                    <i class="fa-solid fa-laptop-code" style="font-size: 3.5rem; color: #000;"></i>
+                </div>
+                <h2 style="background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.8rem;">Fat7y Mahmoud</h2>
+                <p style="color: var(--neon-cyan); font-size: 1.1rem; margin-bottom: 8px;">مطور المنصة</p>
+                
+                <div style="display: flex; gap: 20px; justify-content: center; margin: 10px 0;">
+                    <a href="https://wa.me/201013897874" target="_blank" style="font-size: 2.5rem; color: #25D366; text-shadow: 0 0 20px #25D366;"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://t.me/M_X_1_X" target="_blank" style="font-size: 2.5rem; color: #0088cc; text-shadow: 0 0 20px #0088cc;"><i class="fa-brands fa-telegram"></i></a>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px;">@M_X_1_X | +20 10 13897874</div>
+            </div>
+
+            <button class="btn" onclick="closeSupport()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- شاشة الملف الشخصي -->
+    <div class="screen" id="profile-screen">
+        <div class="boss-card">
+            <h1 class="platform-title">تعديل الملف</h1>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <div style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--neon-blue); margin: 0 auto; overflow: hidden; box-shadow: 0 0 50px var(--neon-blue);">
+                    <img src="" id="profile-img" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=User&background=00ccff&color=000&bold=true'">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" class="input-field" id="edit-name" placeholder="الاسم الجديد">
+            </div>
+
+            <button class="btn" onclick="saveProfile()">حفظ التغييرات</button>
+            <button class="btn" onclick="closeProfile()" style="background: linear-gradient(135deg, #ff3366, #cc0066);">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div class="screen active" id="login-screen">
+        <div class="boss-card">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <i class="fa-solid fa-leaf" style="font-size: 4.5rem; color: var(--neon-blue); text-shadow: 0 0 50px var(--neon-blue);"></i>
+            </div>
+            <div class="welcome-title">
+                <div class="welcome-line">منصة المهندس الزراعي</div>
+                <div class="welcome-line">College of Agriculture</div>
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" class="input-field" id="login-username" placeholder="اسم المستخدم">
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" class="input-field" id="login-password" placeholder="كلمة المرور">
+            </div>
+
+            <button class="btn" onclick="login()">دخول</button>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                <a href="#" onclick="showScreen('register')" style="color: var(--neon-blue); text-decoration: none; font-weight: 900; font-size: 1rem;">إنشاء حساب جديد</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- شاشة إنشاء حساب -->
+    <div class="screen" id="register-screen">
+        <div class="boss-card">
+            <h1 class="platform-title">حساب جديد</h1>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" class="input-field" id="reg-username" placeholder="اسم المستخدم">
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" class="input-field" id="reg-password" placeholder="كلمة المرور">
+            </div>
+
+            <button class="btn" onclick="register()">إنشاء حساب</button>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                <a href="#" onclick="showScreen('login')" style="color: var(--neon-blue); text-decoration: none; font-weight: 900; font-size: 1rem;">لديك حساب؟ دخول</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- الصفحة الرئيسية -->
+    <div class="screen" id="main-screen">
+        <div class="taskbar">
+            <button class="menu-trigger" onclick="toggleMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+
+                <a href="https://t.me/MRXForAnynomes" target="_blank" class="group-badge">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>جروب الملخصات</span>
+                </a>
+            </div>
+
+            <button class="logout-btn" onclick="logout()" style="background: none; border: 1px solid #ff3366; color: #ff3366; width: 42px; height: 42px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;">
+                <i class="fa-solid fa-sign-out-alt"></i>
+            </button>
+        </div>
+
+        <div class="user-greeting" id="userGreeting"></div>
+
+        <!-- Skeleton loading سريع -->
+        <div id="skeleton-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 130px; padding: 20px;">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+
+        <div class="subjects-grid" id="subjectsGrid" style="display: none;">
+            <!-- البساتين -->
+            <div class="subject-card" data-subject="بساتين">
+                <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">🌿 البساتين</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-basateen" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="https://drive.google.com/drive/folders/1DWp1VjarIVnehd0g4IXh0n5FemTo3_v1" target="_blank" class="card-btn" onclick="updateProgress('basateen')"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/1S4n_TpXmXGpj9XOUnoH3-jqNSPyezPWP" target="_blank" class="card-btn" onclick="updateProgress('basateen')"><i class="fa-solid fa-users"></i> سكاشن</a>
+                    <a href="#" class="card-btn" onclick="showNoData(event)"><i class="fa-solid fa-file-pdf"></i> كويزات</a>
+                </div>
+            </div>
+
+            <!-- الإنتاج الحيواني -->
+            <div class="subject-card" data-subject="انتاج حيواني">
+                <img src="https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">🐓 إنتاج حيواني</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-animal" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="https://drive.google.com/drive/folders/19r4_78zEXu6rFa6vtsd7v-9ZZkOTjHyw" target="_blank" class="card-btn" onclick="updateProgress('animal')"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/1JhIdUXXkPiG3Of3BPHdOaVLp2l7YJmo4" target="_blank" class="card-btn" onclick="updateProgress('animal')"><i class="fa-solid fa-users"></i> سكاشن</a>
+                    <a href="#" class="card-btn" onclick="showNoData(event)"><i class="fa-solid fa-file-pdf"></i> كويزات</a>
+                </div>
+            </div>
+
+            <!-- الوراثة -->
+            <div class="subject-card" data-subject="وراثة">
+                <img src="https://images.unsplash.com/photo-1530026405186-ed1f139313f8?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">🧬 الوراثة</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-genetics" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="https://drive.google.com/drive/folders/1jY5aTqXk4-1Z5GVM75W_vrJ9hk7eQeqI" target="_blank" class="card-btn" onclick="updateProgress('genetics')"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/1ZIGEPiSkSGUgoiwBsOQI-BExZgg4aglQ" target="_blank" class="card-btn" onclick="updateProgress('genetics')"><i class="fa-solid fa-users"></i> سكاشن</a>
+                    <a href="https://drive.google.com/drive/folders/1AR5crtiCbpo_j1gO_aLYkGv-eVkyul45" target="_blank" class="card-btn" onclick="updateProgress('genetics')"><i class="fa-solid fa-file-pdf"></i> ملخصات</a>
+                </div>
+            </div>
+
+            <!-- الحشرات - صورة جديدة -->
+            <div class="subject-card" data-subject="حشرات">
+                <img src="https://images.unsplash.com/photo-1555169062-013468b47731?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">🐛 الحشرات</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-insects" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="https://drive.google.com/drive/folders/1zUAzEQULG-wwRrqjAkMl8Ok4VmAsRdEw" target="_blank" class="card-btn" onclick="updateProgress('insects')"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/1hrXH0hg2S94F4q2dG4QRp5pbGcfBQo6k" target="_blank" class="card-btn" onclick="updateProgress('insects')"><i class="fa-solid fa-users"></i> سكاشن</a>
+                    <a href="#" class="card-btn" onclick="showNoData(event)"><i class="fa-solid fa-file-pdf"></i> كويزات</a>
+                </div>
+            </div>
+
+            <!-- الأراضي -->
+            <div class="subject-card" data-subject="اراضي">
+                <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">🌱 الأراضي</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-soil" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="#" class="card-btn" onclick="showNoData(event)"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/1Xyj_YHOuviUEXFxsbaLq-5iW_t-eAhu-" target="_blank" class="card-btn" onclick="updateProgress('soil')"><i class="fa-solid fa-file-pdf"></i> ملخصات</a>
+                    <a href="https://drive.google.com/drive/folders/1OJeKZHQ2wgkY8AFC5N0owzsNSWznHrZf" target="_blank" class="card-btn" onclick="updateProgress('soil')"><i class="fa-solid fa-microphone"></i> ريكوردات</a>
+                </div>
+            </div>
+
+            <!-- المجتمع الريفي -->
+            <div class="subject-card" data-subject="مجتمع ريفي">
+                <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">👥 مجتمع ريفي</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-rural" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="https://drive.google.com/drive/folders/10oGdk4dOyEVt70FDEy322ertYh-crvOq" target="_blank" class="card-btn" onclick="updateProgress('rural')"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/1JsJs7Nc1Zi19ThKSIknn7rc4SCaVkuK4" target="_blank" class="card-btn" onclick="updateProgress('rural')"><i class="fa-solid fa-users"></i> سكاشن</a>
+                    <a href="https://drive.google.com/drive/folders/1aZ22Pah9coS3Ih78Krm_UIhRpSEFmd4G" target="_blank" class="card-btn" onclick="updateProgress('rural')"><i class="fa-solid fa-file-pdf"></i> ملخصات</a>
+                </div>
+            </div>
+
+            <!-- حاسب آلي -->
+            <div class="subject-card" data-subject="حاسب">
+                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=500&auto=format" class="card-img" loading="lazy">
+                <h3 class="card-title">💻 حاسب آلي</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-computer" style="width: 0%"></div>
+                </div>
+                <div class="card-buttons">
+                    <a href="https://drive.google.com/drive/folders/1IYIKgL1VUFUOO6jZyMn9klm8AHvmxkVf" target="_blank" class="card-btn" onclick="updateProgress('computer')"><i class="fa-solid fa-video"></i> محاضرات</a>
+                    <a href="https://drive.google.com/drive/folders/13B1bLllAXvKKrEHQMLGlN75cPGi5e9aF" target="_blank" class="card-btn" onclick="updateProgress('computer')"><i class="fa-solid fa-users"></i> سكاشن</a>
+                    <a href="https://drive.google.com/drive/folders/1b7o7KsPCnUdIo1uzCfK6v24YsWQfJrc-" target="_blank" class="card-btn" onclick="updateProgress('computer')"><i class="fa-solid fa-file-pdf"></i> ملخصات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات البوت
+        const BOT_TOKEN = '8573575464:AAHmoSglPmY7gbUVH3Amw4npNraXCw6ZfTI';
+        const CHAT_IDS = ['8475303547', '7716392286', '5973401469', '5114785512', '8108852761'];
+
+        // قائمة الكلمات القبيحة الممنوعة (مصغرة للسرعة)
+        const badWords = ['كس', 'كسم', 'شرموط', 'عرص', 'قحبة', 'خول', 'متناك', 'زب', 'طيز', 'fuck', 'shit', 'bitch'];
+
+        let currentUser = null;
+        let selectedImage = null;
+
+        // رسائل الترحيب السريعة
+        const greetingMessages = [
+            (name) => `يا ${name}، النجاح قدامك! 🔥`,
+            (name) => `المهندس ${name} دخل المنصة! 🚀`,
+            (name) => `${name} نورت! 💪`,
+            (name) => `مرحباً ${name} 🌟`,
+            (name) => `${name} في البيت! ☕`,
+            (name) => `أسطورة ${name} وصل 🏆`
+        ];
+
+        // وظائف سريعة
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenName + '-screen').classList.add('active');
+            
+            if (screenName === 'main') {
+                showLoadingAndCards();
+            }
+        }
+
+        // Skeleton loading سريع
+        function showLoadingAndCards() {
+            document.getElementById('skeleton-grid').style.display = 'grid';
+            document.getElementById('subjectsGrid').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('skeleton-grid').style.display = 'none';
+                document.getElementById('subjectsGrid').style.display = 'grid';
+                loadProgress();
+            }, 400); // وقت أقل = سرعة أعلى
+        }
+
+        // تبديل الوضع
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const icon = document.querySelector('#themeToggle i');
+            icon.className = document.body.classList.contains('light-mode') ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            showToast(document.body.classList.contains('light-mode') ? '☀️ نهاري' : '🌙 ليلي');
+        }
+
+        // تحديث التقدم
+        function updateProgress(subject) {
+            const key = `progress_${subject}`;
+            let progress = parseInt(localStorage.getItem(key) || '0');
+            progress = Math.min(progress + 10, 100);
+            localStorage.setItem(key, progress);
+            document.getElementById(`progress-${subject}`).style.width = progress + '%';
+        }
+
+        function loadProgress() {
+            const subjects = ['basateen', 'animal', 'genetics', 'insects', 'soil', 'rural', 'computer'];
+            subjects.forEach(subject => {
+                const progress = localStorage.getItem(`progress_${subject}`) || '0';
+                const elem = document.getElementById(`progress-${subject}`);
+                if (elem) elem.style.width = progress + '%';
+            });
+        }
+
+        function toggleMenu() {
+            document.getElementById('sideMenu').classList.toggle('open');
+        }
+
+        function openPrayerMessage() { toggleMenu(); showScreen('prayer'); }
+        function closePrayerMessage() { showScreen('main'); }
+        
+        function openAskScreen() { toggleMenu(); showScreen('ask'); }
+        function closeAskScreen() { showScreen('main'); }
+        
+        function openSupport() { toggleMenu(); showScreen('support'); }
+        function closeSupport() { showScreen('main'); }
+        
+        function openProfileEdit() { toggleMenu(); if(currentUser) document.getElementById('edit-name').value = currentUser.name; showScreen('profile'); }
+        function closeProfile() { showScreen('main'); }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedImage = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // فلترة سريعة
+        function containsBadWords(text) {
+            const lowerText = text.toLowerCase();
+            return badWords.some(word => lowerText.includes(word));
+        }
+
+        // إنشاء حساب
+        function register() {
+            const u = document.getElementById('reg-username').value;
+            const p = document.getElementById('reg-password').value;
+            if(!u || !p) return showToast('❌ املأ الحقول');
+            if(u.length < 3 || p.length < 4) return showToast('❌ قصير');
+            if(localStorage.getItem('user_'+u)) return showToast('❌ موجود');
+            
+            localStorage.setItem('user_'+u, JSON.stringify({name: u, username: u, password: p}));
+            showToast('✅ تم الإنشاء');
+            showScreen('login');
+        }
+
+        // تسجيل الدخول
+        function login() {
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
+            if(!u || !p) return showToast('❌ ادخل البيانات');
+            
+            const data = localStorage.getItem('user_'+u);
+            if(!data) return showToast('❌ غير موجود');
+            
+            const user = JSON.parse(data);
+            if(user.password !== p) return showToast('❌ كلمة المرور خطأ');
+            
+            currentUser = user;
+            localStorage.setItem('current_user', u);
+            updateUserGreeting(u);
+            showScreen('main');
+            showToast('✅ مرحباً ' + u);
+        }
+
+        function updateUserGreeting(name) {
+            const randomMessage = greetingMessages[Math.floor(Math.random() * greetingMessages.length)](name);
+            document.getElementById('userGreeting').innerHTML = randomMessage;
+        }
+
+        function logout() { 
+            if(confirm('تأكيد؟')) { 
+                localStorage.removeItem('current_user'); 
+                currentUser = null; 
+                showScreen('login'); 
+                showToast('👋 تم الخروج'); 
+                toggleMenu(); 
+            } 
+        }
+
+        function saveProfile() {
+            const n = document.getElementById('edit-name').value.trim();
+            if(n && currentUser && n.length >= 3) {
+                currentUser.name = n;
+                localStorage.setItem('user_'+currentUser.username, JSON.stringify(currentUser));
+                updateUserGreeting(n);
+                showToast('✅ تم التحديث');
+                closeProfile();
+            } else showToast('❌ الاسم قصير');
+        }
+
+        // إرسال السؤال مع فلترة سريعة
+        function sendQuestion() {
+            const q = document.getElementById('question-text').value.trim();
+            
+            if (containsBadWords(q)) {
+                document.getElementById('bad-word-error').style.display = 'block';
+                setTimeout(() => document.getElementById('bad-word-error').style.display = 'none', 2000);
+                return showToast('❌ كلام غير لائق');
+            }
+            
+            if(!q) return showToast('❌ اكتب السؤال');
+            if(q.length < 5) return showToast('❌ السؤال قصير');
+            
+            const btn = document.getElementById('send-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'جاري <span class="loading-spinner"></span>';
+            btn.disabled = true;
+
+            const userName = currentUser ? currentUser.name : 'طالب';
+            let message = `📝 سؤال جديد\n👤 ${userName}\n💬 ${q}`;
+            if (selectedImage) message += `\n📷 صورة`;
+            message += `\n🔗 https://t.me/MRXForAnynomes`;
+
+            Promise.allSettled(CHAT_IDS.map(id => 
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({chat_id:id, text:message})
+                }).catch(()=>{})
+            )).then(() => { 
+                document.getElementById('success-message').style.display = 'block';
+                document.getElementById('question-text').value = '';
+                document.getElementById('image-preview').style.display = 'none';
+                selectedImage = null;
+                setTimeout(() => document.getElementById('success-message').style.display = 'none', 2000);
+                showToast('✅ تم الإرسال');
+            }).catch(() => showToast('❌ فشل')).finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function showNoData(e) { 
+            e.preventDefault(); 
+            showToast('🚫 لا توجد بيانات'); 
+        }
+
+        function showToast(m) { 
+            const t = document.getElementById('toast'); 
+            t.textContent = m; 
+            t.style.display = 'block'; 
+            setTimeout(() => t.style.display = 'none', 1500); 
+        }
+
+        // بداية سريعة
+        window.onload = () => {
+            // 10 جزيئات فقط للسرعة
+            for (let i = 0; i < 10; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.cssText = `top:${Math.random()*100}%;left:${Math.random()*100}%;animation:particleFloat 8s infinite;animation-delay:${Math.random()*5}s;`;
+                document.getElementById('bgAnimation').appendChild(p);
+            }
+
+            const u = localStorage.getItem('current_user');
+            if(u) {
+                const d = localStorage.getItem('user_'+u);
+                if(d) { 
+                    currentUser = JSON.parse(d); 
+                    updateUserGreeting(currentUser.name); 
+                    showScreen('main'); 
+                }
+                else localStorage.removeItem('current_user');
+            }
+        };
+
+        // إضافة CSS للجزيئات
+        const style = document.createElement('style');
+        style.textContent = `
+            .particle {
+                position: absolute;
+                width: 3px;
+                height: 3px;
+                background: var(--neon-blue);
+                border-radius: 50%;
+                box-shadow: 0 0 15px var(--neon-blue);
+                opacity: 0;
+                pointer-events: none;
+            }
+            @keyframes particleFloat {
+                0% { transform: translateY(100vh); opacity: 0; }
+                20% { opacity: 0.8; }
+                80% { opacity: 0.8; }
+                100% { transform: translateY(-100vh); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
